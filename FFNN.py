@@ -29,7 +29,7 @@ class FFNN:
         output = input
         for layer in self.layer_list:
             output = layer.feed_forward(output)
-        return output
+        return 1 if output > 0.5 else 0
 
     def adjust_weight(self):
         pass
