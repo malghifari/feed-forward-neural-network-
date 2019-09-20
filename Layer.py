@@ -3,9 +3,8 @@ import numpy as np
 import math
 
 class Layer:
-    def __init__(self, n_neuron, n_input, min_ran=-10, max_ran=10, weights=None):
-        self.min_ran = min_ran
-        self.max_ran = max_ran
+    def __init__(self, n_neuron, n_input, random_scale=10, weights=None):
+        self.random_scale = random_scale
         self.n_neuron = n_neuron
         self.n_input = n_input
         if weights is None:
@@ -14,17 +13,16 @@ class Layer:
             self.weights = weights
     
     def random_weight(self):
-        self.weights = np.ndarray(dtype=float, shape=(self.n_neuron, self.n_input))
-        for i in range(self.n_neuron):
-            for j in range(self.n_input):
-                self.weights[i][j] = random.randint(self.min_ran, self.max_ran)
+        self.weights = 2 * self.random_scale * np.random.rand(self.n_neuron, self.n_input) - self.random_scale
 
     def feed_forward(self, input):
         z = np.matmul(self.weights, input)
-        output = np.ndarray(dtype=float, shape=(len(z)))
-        for i in range(len(z)):
-            output[i] = self.sigmoid(z[i])
-        return output
-
+        sigmoid_func = np.vectorize(self.sigmoid)
+        return sigmoid_func(z)
+    
     def sigmoid(self, z):
         return 1 / (1 + math.exp(-z))
+
+# layer = Layer(n_neuron=2, n_input=4)
+# print(layer.weights)
+# print(layer.feed_forward([1,2,3,4]))
