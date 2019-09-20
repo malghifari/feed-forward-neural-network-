@@ -25,8 +25,11 @@ class FFNN:
         #      - Learn
         pass
 
-    def predict(self):
-        pass
+    def predict(self, input):
+        output = input
+        for layer in self.layer_list:
+            output = layer.feed_forward(output)
+        return output
 
     def adjust_weight(self):
         pass
