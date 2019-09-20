@@ -1,8 +1,9 @@
 import random
 import numpy as np
+import math
 
 class Layer:
-    def __init__(self, n_neuron, n_input, min_ran=-100, max_ran=100, weights=None):
+    def __init__(self, n_neuron, n_input, min_ran=-10, max_ran=10, weights=None):
         self.min_ran = min_ran
         self.max_ran = max_ran
         self.n_neuron = n_neuron
@@ -19,4 +20,11 @@ class Layer:
                 self.weights[i][j] = random.randint(self.min_ran, self.max_ran)
 
     def feed_forward(self, input):
-        return np.matmul(self.weights, input)
+        z = np.matmul(self.weights, input)
+        output = np.ndarray(dtype=float, shape=(len(z)))
+        for i in range(len(z)):
+            output[i] = self.sigmoid(z[i])
+        return output
+
+    def sigmoid(self, z):
+        return 1 / (1 + math.exp(-z))
