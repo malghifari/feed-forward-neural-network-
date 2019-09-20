@@ -11,14 +11,17 @@ class FFNN:
 
     def fit(self, data):
         # Get number of features
+        n_rows = data.shape[0]
         n_features = data.shape[1]
         # Create list of layers (while initiating random weights)
-        layer_list = []
-        layer_list.append(Layer(n_neuron=self.nb_nodes, n_input=n_features))
-        layer_list = [Layer(n_neuron=self.nb_nodes, n_input=self.nb_nodes) for i in range(self.n_hidden_layers - 1)]
-        layer_list.append(Layer(n_neuron=1, n_input=n_features))
+        self.layer_list = []
+        self.layer_list.append(Layer(n_neuron=self.nb_nodes, n_input=n_features))
+        self.layer_list = [Layer(n_neuron=self.nb_nodes, n_input=self.nb_nodes) for i in range(self.n_hidden_layers - 1)]
+        self.layer_list.append(Layer(n_neuron=1, n_input=n_features))
 
         # for e in self.epoch:
+        #     for i in range(0, n_rows/self.batch_size, self.batch_size):
+
 
         # Loop:
         #      - Feed forward
@@ -30,6 +33,3 @@ class FFNN:
         for layer in self.layer_list:
             output = layer.feed_forward(output)
         return 1 if output > 0.5 else 0
-
-    def adjust_weight(self):
-        pass
