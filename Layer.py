@@ -19,6 +19,8 @@ class Layer:
             np.random.rand(self.n_neuron, self.n_input) - self.random_scale
 
     def sigmoid(self, z):
+        if (-z >= 710): # Avoid math.exp overflow
+            return 0
         return 1 / (1 + math.exp(-z))
 
     def sigmoid_derivative(self, z):
@@ -26,7 +28,7 @@ class Layer:
 
     def feed_forward(self, input):
         sigmoid_func = np.vectorize(self.sigmoid)
-        self.z = np.matmul(self.weights, input)
+        self.z = np.matmul(input, self.weights.T)
         self.a = sigmoid_func(self.z)
         return self.a
 
