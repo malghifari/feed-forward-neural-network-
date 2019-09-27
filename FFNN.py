@@ -1,3 +1,4 @@
+import numpy as np
 import Layer
 
 class FFNN:
@@ -9,27 +10,44 @@ class FFNN:
         self.momentum = momentum
         self.epoch = epoch
 
-    def fit(self, data):
+    def fit(self, X, y):
         # Get number of features
-        n_rows = data.shape[0]
-        n_features = data.shape[1]
+        n_input = X.shape[0]
+        n_features = X.shape[1]
         # Create list of layers (while initiating random weights)
         self.layer_list = []
         self.layer_list.append(Layer(n_neuron=self.nb_nodes, n_input=n_features))
         self.layer_list = [Layer(n_neuron=self.nb_nodes, n_input=self.nb_nodes) for i in range(self.n_hidden_layers - 1)]
         self.layer_list.append(Layer(n_neuron=1, n_input=n_features))
 
-        # for e in self.epoch:
-        #     for i in range(0, n_rows/self.batch_size, self.batch_size):
+        i = 0
+        while (i < n_input):
 
+            label = y[i]
 
-        # Loop:
-        #      - Feed forward
-        #      - Learn
-        pass
+            for layer, index in enumerate(reversed(self.layer_list)):
+                if (index == 0):
+                    # delta for output layer
+                    delta = layer.compute_delta_output_layer(y)
+                    
+                else:
+                    # delta for hidden layer
+                    layer.gradient_descent(delta)
+                    delta = layer.compute_delta(delta)
+            
+            i += 1
+
+        for layer in self.layer_list:
+            layer.update_weight(n_input)
+
+            
 
     def predict(self, input):
         output = input
         for layer in self.layer_list:
             output = layer.feed_forward(output)
         return 1 if output > 0.5 else 0
+    
+    def cost(self, X, y):
+        m = X.shape[0];
+        return 1 / (2 * m) * sum(([self.predict(X[i]) for i in range(m)] - y) ** 2)
