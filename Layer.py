@@ -39,6 +39,9 @@ class Layer:
     def compute_delta(self, previous_delta):
         return np.dot(np.matmul(self.weights.T, previous_delta), self.sigmoid_derivative(self.z))
 
+    def update_weight(self, n_input):
+        self.weights -= self.Delta / n_input
+
 
 # layer = Layer(n_neuron=2, n_input=4)
 # print(layer.weights)
