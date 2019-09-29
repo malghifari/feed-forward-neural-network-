@@ -64,32 +64,21 @@ class FFNN:
         # return output[0]
 
 
-df = pd.read_csv('dataset/Churn_Modelling.csv')
+import pandas as pd
 
-df.head()
+df = pd.read_csv('dataset/gender_classification.csv')
 
-features = ['CreditScore', 'Age', 'Tenure', 'Balance',
-            'NumOfProducts', 'HasCrCard', 'IsActiveMember', 'EstimatedSalary']
+df['Favorite Color'] = pd.Categorical(df['Favorite Color']).codes
+df['Favorite Music Genre'] = pd.Categorical(df['Favorite Music Genre']).codes
+df['Favorite Beverage'] = pd.Categorical(df['Favorite Beverage']).codes
+df['Favorite Soft Drink'] = pd.Categorical(df['Favorite Soft Drink']).codes
+df['Gender'] = pd.Categorical(df['Gender']).codes
 
-preproc_df = df[features]
-
-preproc_df['Geography'] = pd.Categorical(df['Geography']).codes
-# preproc_df['Gender'] = pd.Categorical(df['Gender']).codes
-
-preproc_df.head()
-
-scaler = StandardScaler()
-
-scaled_df = scaler.fit_transform(preproc_df.to_numpy())
-
-label = df['Exited'].to_numpy()
-
-label
-
+features = ['Favorite Color', 'Favorite Music Genre', 'Favorite Beverage', 'Favorite Soft Drink']
+X = df[features].to_numpy()
+y = df['Gender'].to_numpy()
 
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2)
-X = scaled_df
-y = label
 for train_index, test_index in sss.split(X, y):
     training_input, testing_input = X[train_index], X[test_index]
     training_label, testing_label = y[train_index], y[test_index]
@@ -103,36 +92,3 @@ ffnn.fit(training_input, training_label)
 ffnn_pred = ffnn.predict(testing_input)
 
 print(classification_report(testing_label, ffnn_pred))
-
-
-# import pandas as pd
-# from scipy.io import arff
-
-# data = arff.loadarff('dataset/weather.arff')
-
-# df = pd.DataFrame(data[0])
-
-# df.head()
-
-
-# df['outlook'] = pd.Categorical(df['outlook']).codes
-# df['windy'] = pd.Categorical(df['windy']).codes
-# df['play'] = pd.Categorical(df['play']).codes
-
-# df.head()
-
-
-# feature = ['outlook', 'temperature', 'humidity', 'windy']
-# X = df[feature].to_numpy()
-# y = df['play'].to_numpy()
-
-
-# ffnn = FFNN()
-
-# ffnn.fit(X, y)
-
-# print(ffnn.predict([1, 70.0, 96.0, 0]))
-
-# from sklearn.neural_network import MLPClassifier
-
-# mlp = MLPClassifier(learning_rate_init=0.1, , solver='sgd', batch_size=10, momentum=0.9)
