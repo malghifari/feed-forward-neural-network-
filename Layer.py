@@ -4,7 +4,7 @@ import math
 
 
 class Layer:
-    def __init__(self, n_neuron, n_input, random_scale=10, weights=None):
+    def __init__(self, n_neuron, n_input, random_scale=0.6, weights=None):
         self.random_scale = random_scale
         self.n_neuron = n_neuron
         self.n_input = n_input
@@ -21,11 +21,21 @@ class Layer:
     def sigmoid(self, z):
         for z_list in z:
             for i in z_list:
-                i = 0 if -i >= 710 else 1 / (1 + math.exp(-i))
+                try:
+                    cur_i = i
+                    i = 0 if -i >= 710 else 1 / (1 + math.exp(-i))
+                    if i < 0:
+                        print(cur_i)
+                except OverflowError:
+                    i = float('inf')
         return z
 
     def sigmoid_derivative(self, z):
-        return self.sigmoid(z) * (1 - self.sigmoid(z))
+        try:
+            a = self.sigmoid(z) * (1 - self.sigmoid(z))
+        except Exception:
+            a = float('inf')
+        return a
 
     def feed_forward(self, input):
         self.a = input
