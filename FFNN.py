@@ -60,8 +60,8 @@ class FFNN:
         output = input
         for layer in self.layer_list:
             output = layer.feed_forward(output)
-        return [1 if i >= 0.5 else 0 for i in output]
-        # return output[0]
+        # return [1 if i >= 0 else 0 for i in output]
+        return output
 
 
 import pandas as pd
@@ -90,5 +90,5 @@ ffnn = FFNN(batch_size=1000, n_hidden_layers=2, nb_nodes=5,
 ffnn.fit(training_input, training_label)
 
 ffnn_pred = ffnn.predict(testing_input)
-
+print(ffnn_pred)
 print(classification_report(testing_label, ffnn_pred))
