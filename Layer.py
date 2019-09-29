@@ -8,12 +8,13 @@ class Layer:
         self.random_scale = random_scale
         self.n_neuron = n_neuron
         self.n_input = n_input
+        self.prev_delta_w = 0
         if weights is None:
             self.random_weight()
         else:
             self.weights = weights
         self.delta_w = np.full(
-            (self.n_neuron, self.n_input), 0, dtype='float64')
+            (self.n_neuron, 1 + self.n_input), 0, dtype='float64')
 
     def random_weight(self):
         self.weights = np.ones((self.n_neuron, 1))
@@ -45,10 +46,11 @@ class Layer:
         self.output = self.sigmoid(self.z)
         return self.output
 
-    def gradient_descent(self, previous_delta, n_input, learning_rate):
+    def gradient_descent(self, previous_delta, n_input, learning_rate, momentum):
         self.delta = previous_delta
-        self.delta_w = (np.matmul(self.delta.T, self.a) /
-                        n_input) * learning_rate
+        self.prev_delta_w = self.delta_w
+        self.delta_w = (learning_rate * (np.matmul(self.delta.T, self.a) /
+                                         n_input)) + (momentum * self.prev_delta_w)
 
     def compute_delta_output_layer(self, label):
         self.delta = (self.output.T - label).T
