@@ -4,7 +4,7 @@ import math
 
 
 class Layer:
-    def __init__(self, n_neuron, n_input, random_scale=0.6, weights=None):
+    def __init__(self, n_neuron, n_input, random_scale=2, weights=None):
         self.random_scale = random_scale
         self.n_neuron = n_neuron
         self.n_input = n_input
@@ -12,20 +12,22 @@ class Layer:
             self.random_weight()
         else:
             self.weights = weights
-        self.Delta = np.full((self.n_neuron, self.n_input), 0, dtype='float64')
+        self.delta_w = np.full(
+            (self.n_neuron, self.n_input), 0, dtype='float64')
 
     def random_weight(self):
-        self.weights = 2 * self.random_scale * \
+        self.weights = np.ones((self.n_neuron, 1))
+        random = 2 * self.random_scale * \
             np.random.rand(self.n_neuron, self.n_input) - self.random_scale
+        self.weights = np.append(self.weights, random, axis=1)
 
     def sigmoid(self, z):
-        for z_list in z:
-            for i in z_list:
+        for i in range(len(z)):
+            for j in range(len(z[i])):
                 try:
-                    cur_i = i
-                    i = 0 if -i >= 710 else 1 / (1 + math.exp(-i))
-                    if i < 0:
-                        print(cur_i)
+                    cur_z = z[i][j]
+                    z[i][j] = 0 if -z[i][j] >= 710 else 1 / \
+                        (1 + math.exp(-z[i][j]))
                 except OverflowError:
                     i = float('inf')
         return z
@@ -38,24 +40,25 @@ class Layer:
         return a
 
     def feed_forward(self, input):
-        self.a = input
-        self.z = np.matmul(input, self.weights.T)
+        self.a = np.append(np.ones((input.shape[0], 1)), input, axis=1)
+        self.z = np.matmul(self.a, self.weights.T)
         self.output = self.sigmoid(self.z)
         return self.output
 
-    def gradient_descent(self, previous_delta):
+    def gradient_descent(self, previous_delta, n_input, learning_rate):
         self.delta = previous_delta
-        self.Delta = np.matmul(self.delta.T, self.a)
+        self.delta_w = (np.matmul(self.delta.T, self.a) /
+                        n_input) * learning_rate
 
     def compute_delta_output_layer(self, label):
         self.delta = (self.output.T - label).T
         return self.delta
 
-    def compute_delta(self):
-        next_delta = np.matmul(self.delta, self.weights) * \
-            self.sigmoid_derivative(self.z)
-        return next_delta
+    def compute_delta(self, prev_delta, prev_weights):
+        next_delta = np.matmul(prev_delta, prev_weights) * \
+            self.sigmoid_derivative(
+                np.append(np.ones((self.z.shape[0], 1)), self.z, axis=1))
+        return next_delta[:, 1:]
 
-    def update_weight(self, n_input):
-        self.weights -= self.Delta / n_input
-        self.Delta = np.full((self.n_neuron, self.n_input), 0, dtype='float64')
+    def update_weight(self):
+        self.weights -= self.delta_w
