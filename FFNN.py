@@ -1,5 +1,4 @@
 import pandas as pd
-from FFNN import FFNN
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.neural_network import MLPClassifier
@@ -30,33 +29,39 @@ class FFNN:
                             for i in range(self.n_hidden_layers - 1)]
         self.layer_list.append(Layer(n_neuron=1, n_input=self.nb_nodes))
 
-        i = 0
-        while (i < n_input):
-            for j in range(self.batch_size):
-                pred = self.predict(X[i+j])
-                label = y[i+j]
+        for epoch in range(self.epoch):
+            i = 0
+            while (i < n_input):
+                print('===== Index {} ====='.format(i))
+
+                # print(X[index:index + self.batch_size])
+                pred = self.predict(X[i:i + self.batch_size])
+                label = y[i:i + self.batch_size]
 
                 for index, layer in enumerate(reversed(self.layer_list)):
                     if (index == 0):
                         # delta for output layer
-                        delta = layer.compute_delta_output_layer(y)
+                        delta = layer.compute_delta_output_layer(label)
+                        layer.gradient_descent(delta)
+                        delta = layer.compute_delta()
+                    elif (index == len(self.layer_list) - 1):
                         layer.gradient_descent(delta)
                     else:
                         # delta for hidden layer
-                        delta = layer.compute_delta(delta)
                         layer.gradient_descent(delta)
+                        delta = layer.compute_delta()
 
-            for layer in self.layer_list:
-                layer.update_weight(n_input)
+                for layer in self.layer_list:
+                    layer.update_weight(n_input)
 
-            i += self.batch_size
+                i += self.batch_size
 
     def predict(self, input):
         output = input
         for layer in self.layer_list:
             output = layer.feed_forward(output)
-        # return 1 if output[0] > 0.5 else 0
-        return output[0]
+        return [1 if i >= 0.5 else 0 for i in output]
+        # return output[0]
 
 
 df = pd.read_csv('dataset/Churn_Modelling.csv')
@@ -82,7 +87,7 @@ label = df['Exited'].to_numpy()
 label
 
 
-sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=0)
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2)
 X = scaled_df
 y = label
 for train_index, test_index in sss.split(X, y):
@@ -90,8 +95,8 @@ for train_index, test_index in sss.split(X, y):
     training_label, testing_label = y[train_index], y[test_index]
 
 
-ffnn = FFNN(batch_size=5, n_hidden_layers=2, nb_nodes=4,
-            learning_rate=0.1, momentum=0.9, epoch=1)
+ffnn = FFNN(batch_size=1000, n_hidden_layers=2, nb_nodes=5,
+            learning_rate=0.1, momentum=0.9, epoch=2)
 
 ffnn.fit(training_input, training_label)
 

@@ -19,42 +19,33 @@ class Layer:
             np.random.rand(self.n_neuron, self.n_input) - self.random_scale
 
     def sigmoid(self, z):
-        if (-z >= 710):  # Avoid math.exp overflow
-            return 0
-        return 1 / (1 + math.exp(-z))
+        for z_list in z:
+            for i in z_list:
+                i = 0 if -i >= 710 else 1 / (1 + math.exp(-i))
+        return z
 
     def sigmoid_derivative(self, z):
         return self.sigmoid(z) * (1 - self.sigmoid(z))
 
     def feed_forward(self, input):
-        sigmoid_func = np.vectorize(self.sigmoid)
-        print(input.shape, self.weights.T.shape)
-
         self.a = input
         self.z = np.matmul(input, self.weights.T)
-        self.output = sigmoid_func(self.z)
+        self.output = self.sigmoid(self.z)
         return self.output
 
     def gradient_descent(self, previous_delta):
-        print(self.delta.T.shape, self.a.shape)
-        print('Delta', self.Delta.shape)
+        self.delta = previous_delta
         self.Delta = np.matmul(self.delta.T, self.a)
 
     def compute_delta_output_layer(self, label):
-        print(self.output, label)
-        print('aa', (self.output.T - label).shape)
         self.delta = (self.output.T - label).T
         return self.delta
 
-    def compute_delta(self, previous_delta):
-        print(previous_delta.shape, self.weights.shape,
-              self.sigmoid_derivative(self.z).shape)
-        return np.matmul(previous_delta, self.weights.T) * self.sigmoid_derivative(self.z)
+    def compute_delta(self):
+        next_delta = np.matmul(self.delta, self.weights) * \
+            self.sigmoid_derivative(self.z)
+        return next_delta
 
     def update_weight(self, n_input):
         self.weights -= self.Delta / n_input
-
-
-# layer = Layer(n_neuron=2, n_input=4)
-# print(layer.weights)
-# print(layer.feed_forward([1,2,3,4]))
+        self.Delta = np.full((self.n_neuron, self.n_input), 0, dtype='float64')
