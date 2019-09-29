@@ -66,17 +66,18 @@ class FFNN:
 
 import pandas as pd
 
-df = pd.read_csv('dataset/gender_classification.csv')
+df = pd.read_csv('dataset/breast-cancer.csv')
 
-df['Favorite Color'] = pd.Categorical(df['Favorite Color']).codes
-df['Favorite Music Genre'] = pd.Categorical(df['Favorite Music Genre']).codes
-df['Favorite Beverage'] = pd.Categorical(df['Favorite Beverage']).codes
-df['Favorite Soft Drink'] = pd.Categorical(df['Favorite Soft Drink']).codes
-df['Gender'] = pd.Categorical(df['Gender']).codes
+df['Class'] = pd.Categorical(df['Class']).codes
+no_miss_val_df = df.copy()
+no_miss_val_df['Bare Nuclei'] = df['Bare Nuclei'].replace('?', 'nan')
+no_miss_val_df['Bare Nuclei'] = no_miss_val_df['Bare Nuclei'].astype(float)
+no_miss_val_df['Bare Nuclei'] = no_miss_val_df['Bare Nuclei'].fillna(no_miss_val_df['Bare Nuclei'].median())
 
-features = ['Favorite Color', 'Favorite Music Genre', 'Favorite Beverage', 'Favorite Soft Drink']
-X = df[features].to_numpy()
-y = df['Gender'].to_numpy()
+features = ['Clump Thickness', 'Uniformity of Cell Size', 'Uniformity of Cell Shape', 'Marginal Adhesion', 'Single Epithelial Cell Size', 'Bare Nuclei', 'Bland Chromatin', 'Normal Nucleoli', 'Mitoses']
+
+X = no_miss_val_df[features].to_numpy()
+y = no_miss_val_df['Class'].to_numpy()
 
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2)
 for train_index, test_index in sss.split(X, y):
