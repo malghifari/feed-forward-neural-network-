@@ -24,19 +24,21 @@ class FFNN:
 
         i = 0
         while (i < n_input):
-            for j in range(self.batch_size):
-                pred = self.predict(X[i+j])
-                label = y[i+j]
+            print('===== Index {} ====='.format(i))
+            
+            # print(X[index:index + self.batch_size])
+            pred = self.predict(X[i:i + self.batch_size])
+            label = y[i:i + self.batch_size]
 
-                for index, layer in enumerate(reversed(self.layer_list)):
-                    if (index == 0):
-                        # delta for output layer
-                        delta = layer.compute_delta_output_layer(y)
-                        layer.gradient_descent(delta)
-                    else:
-                        # delta for hidden layer
-                        delta = layer.compute_delta(delta)
-                        layer.gradient_descent(delta)
+            for index, layer in enumerate(reversed(self.layer_list)):
+                if (index == 0):
+                    # delta for output layer
+                    delta = layer.compute_delta_output_layer(label)
+                    layer.gradient_descent(delta)
+                else:
+                    # delta for hidden layer
+                    delta = layer.compute_delta(delta)
+                    layer.gradient_descent(delta)
     
             for layer in self.layer_list:
                 layer.update_weight(n_input)
@@ -47,8 +49,8 @@ class FFNN:
         output = input
         for layer in self.layer_list:
             output = layer.feed_forward(output)
-        # return 1 if output[0] > 0.5 else 0
-        return output[0]
+        return [1 if i > 0.5 else 0 for i in output]
+        # return output[0]
 
 import pandas as pd
 
