@@ -4,7 +4,7 @@ import math
 
 
 class Layer:
-    def __init__(self, n_neuron, n_input, random_scale=0.6, weights=None):
+    def __init__(self, n_neuron, n_input, random_scale=0.01, weights=None):
         self.random_scale = random_scale
         self.n_neuron = n_neuron
         self.n_input = n_input
@@ -15,17 +15,18 @@ class Layer:
         self.Delta = np.full((self.n_neuron, self.n_input), 0, dtype='float64')
 
     def random_weight(self):
-        self.weights = 2 * self.random_scale * \
-            np.random.rand(self.n_neuron, self.n_input) - self.random_scale
+        self.weights = self.random_scale * \
+            np.random.rand(self.n_neuron, self.n_input)
 
     def sigmoid(self, z):
-        for z_list in z:
-            for i in z_list:
+        for i in range(len(z)):
+            for j in range(len(z[i])):
                 try:
-                    cur_i = i
-                    i = 0 if -i >= 710 else 1 / (1 + math.exp(-i))
-                    if i < 0:
-                        print(cur_i)
+                    cur_z = z[i][j]
+                    z[i][j] = 0 if -z[i][j] >= 710 else 1 / \
+                        (1 + math.exp(-z[i][j]))
+                    if z[i][j] < 0:
+                        print(cur_z)
                 except OverflowError:
                     i = float('inf')
         return z
@@ -56,6 +57,6 @@ class Layer:
             self.sigmoid_derivative(self.z)
         return next_delta
 
-    def update_weight(self, n_input):
-        self.weights -= self.Delta / n_input
+    def update_weight(self, n_input, learning_rate):
+        self.weights -= (self.Delta) * learning_rate
         self.Delta = np.full((self.n_neuron, self.n_input), 0, dtype='float64')

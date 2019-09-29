@@ -30,9 +30,9 @@ class FFNN:
         self.layer_list.append(Layer(n_neuron=1, n_input=self.nb_nodes))
 
         for epoch in range(self.epoch):
+            print('===== Epoch {} ====='.format(epoch))
             i = 0
             while (i < n_input):
-                print('===== Index {} ====='.format(i))
 
                 # print(X[index:index + self.batch_size])
                 pred = self.predict(X[i:i + self.batch_size])
@@ -52,7 +52,7 @@ class FFNN:
                         delta = layer.compute_delta()
 
                 for layer in self.layer_list:
-                    layer.update_weight(n_input)
+                    layer.update_weight(n_input, self.learning_rate)
 
                 i += self.batch_size
 
@@ -60,8 +60,7 @@ class FFNN:
         output = input
         for layer in self.layer_list:
             output = layer.feed_forward(output)
-        # return [1 if i >= 0 else 0 for i in output]
-        return output
+        return [1 if i >= 0.5 else 0 for i in output], output
 
 
 df = pd.read_csv('dataset/Churn_Modelling.csv')
@@ -95,13 +94,13 @@ for train_index, test_index in sss.split(X, y):
     training_label, testing_label = y[train_index], y[test_index]
 
 
-ffnn = FFNN(batch_size=1000, n_hidden_layers=2, nb_nodes=5,
-            learning_rate=0.1, momentum=0.9, epoch=2)
+ffnn = FFNN(batch_size=8000, n_hidden_layers=2, nb_nodes=5,
+            learning_rate=0.1, momentum=0.9, epoch=10)
 
 ffnn.fit(training_input, training_label)
 
-ffnn_pred = ffnn.predict(testing_input)
-print(ffnn_pred)
+ffnn_pred, output = ffnn.predict(testing_input)
+print(output)
 print(classification_report(testing_label, ffnn_pred))
 
 
