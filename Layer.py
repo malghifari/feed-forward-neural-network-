@@ -4,7 +4,7 @@ import math
 
 
 class Layer:
-    def __init__(self, n_neuron, n_input, random_scale=0.01, weights=None):
+    def __init__(self, n_neuron, n_input, random_scale=2, weights=None):
         self.random_scale = random_scale
         self.n_neuron = n_neuron
         self.n_input = n_input
@@ -12,11 +12,12 @@ class Layer:
             self.random_weight()
         else:
             self.weights = weights
-        self.Delta = np.full((self.n_neuron, self.n_input), 0, dtype='float64')
+        self.delta_w = np.full(
+            (self.n_neuron, self.n_input), 0, dtype='float64')
 
     def random_weight(self):
-        self.weights = self.random_scale * \
-            np.random.rand(self.n_neuron, self.n_input)
+        self.weights = 2 * self.random_scale * \
+            np.random.rand(self.n_neuron, self.n_input) - self.random_scale
 
     def sigmoid(self, z):
         for i in range(len(z)):
@@ -25,8 +26,6 @@ class Layer:
                     cur_z = z[i][j]
                     z[i][j] = 0 if -z[i][j] >= 710 else 1 / \
                         (1 + math.exp(-z[i][j]))
-                    if z[i][j] < 0:
-                        print(cur_z)
                 except OverflowError:
                     i = float('inf')
         return z
@@ -44,9 +43,10 @@ class Layer:
         self.output = self.sigmoid(self.z)
         return self.output
 
-    def gradient_descent(self, previous_delta):
+    def gradient_descent(self, previous_delta, n_input, learning_rate):
         self.delta = previous_delta
-        self.Delta = np.matmul(self.delta.T, self.a)
+        self.delta_w = (np.matmul(self.delta.T, self.a) /
+                        n_input) * learning_rate
 
     def compute_delta_output_layer(self, label):
         self.delta = (self.output.T - label).T
@@ -57,6 +57,5 @@ class Layer:
             self.sigmoid_derivative(self.z)
         return next_delta
 
-    def update_weight(self, n_input, learning_rate):
-        self.weights -= (self.Delta) * learning_rate
-        self.Delta = np.full((self.n_neuron, self.n_input), 0, dtype='float64')
+    def update_weight(self):
+        self.weights -= self.delta_w
