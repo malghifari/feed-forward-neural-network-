@@ -8,12 +8,13 @@ class Layer:
         self.random_scale = random_scale
         self.n_neuron = n_neuron
         self.n_input = n_input
-        self.prev_delta_w = 0
         if weights is None:
             self.random_weight()
         else:
             self.weights = weights
         self.delta_w = np.full(
+            (self.n_neuron, 1 + self.n_input), 0, dtype='float64')
+        self.prev_delta_w = np.full(
             (self.n_neuron, 1 + self.n_input), 0, dtype='float64')
 
     def random_weight(self):
