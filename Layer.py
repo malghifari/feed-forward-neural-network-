@@ -16,8 +16,10 @@ class Layer:
             (self.n_neuron, self.n_input), 0, dtype='float64')
 
     def random_weight(self):
-        self.weights = 2 * self.random_scale * \
+        self.weights = np.ones((self.n_neuron, 1))
+        random = 2 * self.random_scale * \
             np.random.rand(self.n_neuron, self.n_input) - self.random_scale
+        self.weights = np.append(self.weights, random, axis=1)
 
     def sigmoid(self, z):
         for i in range(len(z)):
@@ -38,8 +40,8 @@ class Layer:
         return a
 
     def feed_forward(self, input):
-        self.a = input
-        self.z = np.matmul(input, self.weights.T)
+        self.a = np.append(np.ones((input.shape[0], 1)), input, axis=1)
+        self.z = np.matmul(self.a, self.weights.T)
         self.output = self.sigmoid(self.z)
         return self.output
 
@@ -52,10 +54,11 @@ class Layer:
         self.delta = (self.output.T - label).T
         return self.delta
 
-    def compute_delta(self):
-        next_delta = np.matmul(self.delta, self.weights) * \
-            self.sigmoid_derivative(self.z)
-        return next_delta
+    def compute_delta(self, prev_delta, prev_weights):
+        next_delta = np.matmul(prev_delta, prev_weights) * \
+            self.sigmoid_derivative(
+                np.append(np.ones((self.z.shape[0], 1)), self.z, axis=1))
+        return next_delta[:, 1:]
 
     def update_weight(self):
         self.weights -= self.delta_w

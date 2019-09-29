@@ -25,8 +25,8 @@ for train_index, test_index in sss.split(X, y):
     training_label, testing_label = y[train_index], y[test_index]
 
 
-ffnn = FFNN(batch_size=1000, n_hidden_layers=2, nb_nodes=5,
-            learning_rate=1, momentum=0.9, epoch=10)
+ffnn = FFNN(batch_size=20, n_hidden_layers=2, nb_nodes=4,
+            learning_rate=1, momentum=0.9, epoch=100)
 
 ffnn.fit(training_input, training_label)
 

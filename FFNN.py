@@ -42,16 +42,15 @@ class FFNN:
                         delta = layer.compute_delta_output_layer(label)
                         layer.gradient_descent(
                             delta, self.batch_size, self.learning_rate)
-                        delta = layer.compute_delta()
                     elif (index == len(self.layer_list) - 1):
                         layer.gradient_descent(
                             delta, self.batch_size, self.learning_rate)
                     else:
                         # delta for hidden layer
+                        delta = layer.compute_delta(delta, prev_weights)
                         layer.gradient_descent(
                             delta, n_input, self.learning_rate)
-                        delta = layer.compute_delta()
-
+                    prev_weights = layer.weights
                 for layer in self.layer_list:
                     layer.update_weight()
 
