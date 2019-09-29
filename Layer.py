@@ -24,21 +24,20 @@ class Layer:
         self.weights = np.append(self.weights, random, axis=1)
 
     def sigmoid(self, z):
-        for i in range(len(z)):
-            for j in range(len(z[i])):
+        for i in range(z.shape[0]):
+            for j in range(z.shape[1]):
                 try:
-                    cur_z = z[i][j]
-                    z[i][j] = 0 if -z[i][j] >= 710 else 1 / \
+                    z[i][j] = 0 if -z[i][j] >= 709 else 1 / \
                         (1 + math.exp(-z[i][j]))
                 except OverflowError:
-                    i = float('inf')
+                    z[i][j] = math.nan
         return z
 
     def sigmoid_derivative(self, z):
         try:
             a = self.sigmoid(z) * (1 - self.sigmoid(z))
         except Exception:
-            a = float('inf')
+            a = math.nan
         return a
 
     def feed_forward(self, input):
