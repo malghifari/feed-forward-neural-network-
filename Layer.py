@@ -35,10 +35,10 @@ class Layer:
 
     def sigmoid_derivative(self, z):
         try:
-            a = self.sigmoid(z) * (1 - self.sigmoid(z))
+            output = self.sigmoid(z) * (1 - self.sigmoid(z))
         except Exception:
-            a = math.nan
-        return a
+            output = math.nan
+        return output
 
     def feed_forward(self, input):
         self.input = np.append(np.ones((input.shape[0], 1)), input, axis=1)
