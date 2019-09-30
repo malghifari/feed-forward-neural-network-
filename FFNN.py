@@ -8,13 +8,14 @@ from Layer import Layer
 
 
 class FFNN:
-    def __init__(self, batch_size=1, n_hidden_layers=1, nb_nodes=2, learning_rate=0.1, momentum=0.1, epoch=1):
+    def __init__(self, batch_size=1, n_hidden_layers=1, nb_nodes=2, learning_rate=0.1, momentum=0.1, epoch=1, init_epsilon=2):
         self.batch_size = batch_size
         self.n_hidden_layers = n_hidden_layers
         self.nb_nodes = nb_nodes
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.epoch = epoch
+        self.init_epsilon = init_epsilon
 
     def fit(self, X, y):
         # Get number of features
@@ -23,10 +24,10 @@ class FFNN:
         # Create list of layers (while initiating random weights)
         self.layer_list = []
         self.layer_list.append(
-            Layer(n_neuron=self.nb_nodes, n_input=n_features))
-        self.layer_list += [Layer(n_neuron=self.nb_nodes, n_input=self.nb_nodes)
+            Layer(n_neuron=self.nb_nodes, n_input=n_features, init_epsilon=self.init_epsilon))
+        self.layer_list += [Layer(n_neuron=self.nb_nodes, n_input=self.nb_nodes, init_epsilon=self.init_epsilon)
                             for i in range(self.n_hidden_layers - 1)]
-        self.layer_list.append(Layer(n_neuron=1, n_input=self.nb_nodes))
+        self.layer_list.append(Layer(n_neuron=1, n_input=self.nb_nodes, init_epsilon=self.init_epsilon))
 
         for epoch in range(self.epoch):
             print('===== Epoch {} ====='.format(epoch))

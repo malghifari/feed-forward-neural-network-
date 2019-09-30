@@ -23,7 +23,7 @@ for train_index, test_index in sss.split(X, y):
 
 
 ffnn = FFNN(batch_size=10, n_hidden_layers=3, nb_nodes=10,
-            learning_rate=0.2, momentum=0.9, epoch=1000)
+            learning_rate=0.2, momentum=0.9, epoch=10000, init_epsilon=0.2)
 
 ffnn.fit(training_input, training_label)
 

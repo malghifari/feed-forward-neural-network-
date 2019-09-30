@@ -4,8 +4,8 @@ import math
 
 
 class Layer:
-    def __init__(self, n_neuron, n_input, random_scale=2, weights=None):
-        self.random_scale = random_scale
+    def __init__(self, n_neuron, n_input, init_epsilon=2, weights=None):
+        self.init_epsilon = init_epsilon
         self.n_neuron = n_neuron
         self.n_input = n_input
         if weights is None:
@@ -19,8 +19,8 @@ class Layer:
 
     def random_weight(self):
         self.weights = np.ones((self.n_neuron, 1))
-        random = 2 * self.random_scale * \
-            np.random.rand(self.n_neuron, self.n_input) - self.random_scale
+        random = 2 * self.init_epsilon * \
+            np.random.rand(self.n_neuron, self.n_input) - self.init_epsilon
         self.weights = np.append(self.weights, random, axis=1)
 
     def sigmoid(self, z):
