@@ -46,11 +46,11 @@ class Layer:
         self.output = self.sigmoid(self.z)
         return self.output
 
-    def gradient_descent(self, previous_delta, n_input, learning_rate, momentum):
+    def gradient_descent(self, previous_delta, batch_size, learning_rate, momentum):
         self.delta = previous_delta
         self.prev_delta_w = self.delta_w
         self.delta_w = (learning_rate * (np.matmul(self.delta.T, self.input) /
-                                         n_input)) + (momentum * self.prev_delta_w)
+                                         batch_size)) + (momentum * self.prev_delta_w)
 
     def compute_delta_output_layer(self, label):
         self.delta = (self.output.T - label).T
