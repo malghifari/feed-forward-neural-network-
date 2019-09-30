@@ -41,15 +41,15 @@ class Layer:
         return a
 
     def feed_forward(self, input):
-        self.a = np.append(np.ones((input.shape[0], 1)), input, axis=1)
-        self.z = np.matmul(self.a, self.weights.T)
+        self.input = np.append(np.ones((input.shape[0], 1)), input, axis=1)
+        self.z = np.matmul(self.input, self.weights.T)
         self.output = self.sigmoid(self.z)
         return self.output
 
     def gradient_descent(self, previous_delta, n_input, learning_rate, momentum):
         self.delta = previous_delta
         self.prev_delta_w = self.delta_w
-        self.delta_w = (learning_rate * (np.matmul(self.delta.T, self.a) /
+        self.delta_w = (learning_rate * (np.matmul(self.delta.T, self.input) /
                                          n_input)) + (momentum * self.prev_delta_w)
 
     def compute_delta_output_layer(self, label):
