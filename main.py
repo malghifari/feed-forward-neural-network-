@@ -1,32 +1,29 @@
 import pandas as pd
+from scipy.io import arff
 from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
-import numpy as np
+from sklearn.metrics import classification_report
 from FFNN import FFNN
 
-df = pd.read_csv('dataset/gender_classification.csv')
+data = arff.loadarff('dataset/weather.arff')
 
-df['Favorite Color'] = pd.Categorical(df['Favorite Color']).codes
-df['Favorite Music Genre'] = pd.Categorical(df['Favorite Music Genre']).codes
-df['Favorite Beverage'] = pd.Categorical(df['Favorite Beverage']).codes
-df['Favorite Soft Drink'] = pd.Categorical(df['Favorite Soft Drink']).codes
-df['Gender'] = pd.Categorical(df['Gender']).codes
+df = pd.DataFrame(data[0])
 
-features = ['Favorite Color', 'Favorite Music Genre',
-            'Favorite Beverage', 'Favorite Soft Drink']
-X = df[features].to_numpy()
-y = df['Gender'].to_numpy()
+df['outlook'] = pd.Categorical(df['outlook']).codes
+df['windy'] = pd.Categorical(df['windy']).codes
+df['play'] = pd.Categorical(df['play']).codes
 
-sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2)
+feature = ['outlook', 'temperature', 'humidity', 'windy']
+X = df[feature].to_numpy()
+y = df['play'].to_numpy()
+
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.4)
 for train_index, test_index in sss.split(X, y):
     training_input, testing_input = X[train_index], X[test_index]
     training_label, testing_label = y[train_index], y[test_index]
 
 
-ffnn = FFNN(batch_size=20, n_hidden_layers=2, nb_nodes=4,
-            learning_rate=0.1, momentum=0.9, epoch=100)
+ffnn = FFNN(batch_size=10, n_hidden_layers=3, nb_nodes=10,
+            learning_rate=0.2, momentum=0.9, epoch=1000)
 
 ffnn.fit(training_input, training_label)
 
